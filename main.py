@@ -1,10 +1,12 @@
 import pygame
 import random 
+import time
 
 WIDTH = 1200
 HEIGHT = 650
 SIZE = (WIDTH, HEIGHT)
 FPS = 60
+
 cars_pics = ["car3.png","car2.png","car1.png","car0.png"]
 bullets = pygame.sprite.Group()
 window = pygame.display.set_mode(SIZE)
@@ -16,7 +18,10 @@ clock = pygame.time.Clock()
 
 pygame.font.init()
 medium_font = pygame.font.SysFont("Helvetica", 24)
-big_font = pygame.font.SysFont("Impact", 50)
+big_font = pygame.font.SysFont("Impact", 35)
+
+
+
 
 
 pygame.mixer.init()
@@ -53,21 +58,28 @@ class Player(GameSprite):
                              )
         bullets.add(new_bullet)
         
-
-        
-class Wall(GameSprite):
-    def __init__(self, filename, size, coords, speed):
-        super().__init__(filename, size, coords, speed)
-        self.health = random.randint(2,5)
-        self.health_2 = 1
+class ROSHEN(GameSprite):
     def update(self):
         self.rect.y += self.speed
-
-        if self.rect.top > HEIGHT:
+        if self.rect.top > HEIGHT :
             self.rect.y = 0
             self.rect.x = random.randint(50,WIDTH-50)
             self.health = random.randint(2,5)
 
+class Wall(GameSprite):
+    def __init__(self, filename, size, coords, speed):
+        super().__init__(filename, size, coords, speed)
+        self.health = random.randint(2,5)
+        
+    def update(self):
+        self.rect.y += self.speed
+
+        if self.rect.top > HEIGHT or self.health <= 0 :
+            self.rect.y = 0
+            self.rect.x = random.randint(50,WIDTH-50)
+            self.health = random.randint(2,5)
+        
+            
 
 class Bullet(GameSprite):
     def update(self):
@@ -78,34 +90,50 @@ class Bullet(GameSprite):
     
 
 
-class Wall_2(GameSprite):
-    def __init__(self, filename, size, coords, speed):
-        super().__init__(filename, size, coords, speed)
+# class Wall_2(GameSprite):
+#     def __init__(self, filename, size, coords, speed):
+#         super().__init__(filename, size, coords, speed)
         
-        self.health_2 = 1
-    def update(self):
-        self.rect.y += self.speed
+#         self.health_2 = 1
+#     def update(self):
+#         self.rect.y += self.speed
 
-        if self.rect.top > HEIGHT:
-            self.rect.y = 0
-            self.rect.x = random.randint(50,WIDTH-50)
-            self.health_2 = 1
+#         if self.rect.top > HEIGHT:
+#             self.rect.y = 0
+#             self.rect.x = random.randint(50,WIDTH-50)
+#             self.health_2 = 1
 
 
-player = Player("car3.png",(50,70),(HEIGHT//2,WIDTH//2),10)
+player = Player("car3.png",(50,70),(HEIGHT//2 + 200,WIDTH//2),10)
 walls_grup = pygame.sprite.Group()
 wals_num = 3
-bad_walls_group =pygame.sprite.Group()
-bad_walls_num = 1
+
+roshen_grup = pygame.sprite.Group()
+roshen_num = 1
+
+# bad_walls_group =pygame.sprite.Group()
+# bad_walls_num = 1
 
 for i in range(5):
     wall = Wall("wall.png",(random.randint(100,500),70),(random.randint(0,WIDTH-50),random.choice((0,70,210,140))),10)
     while pygame.sprite.spritecollideany(wall,walls_grup):
         wall = Wall("wall.png",(random.randint(100,500),70),(random.randint(0,WIDTH-50),random.choice((0,70,210,140))),10)
     walls_grup.add(wall)
+
+for i in range(5):
+    roshen = ROSHEN("roshen.png",(120,30),(random.randint(0,WIDTH-50),random.choice((0,50,210,140))),10)
+    while pygame.sprite.spritecollideany(roshen,roshen_grup):
+        roshen = ROSHEN("roshen.png",(120,30),(random.randint(0,WIDTH-50),50),10)
+    roshen_grup.add(roshen)
+
+
+
 game = True
 finish = False
 restart = False
+start_time = time.time()
+cur_time = start_time
+
 
 while game:
     for event in pygame.event.get():
@@ -119,22 +147,46 @@ while game:
 
     if not finish and not restart:
         window.blit(background, (0,0))
+
+        new_time = time.time()
+
+
         player.update()
         player.reset(window)
         walls_grup.update()
         walls_grup.draw(window)
         bullets.update()
         bullets.draw(window)
+        roshen_grup.update()
+        roshen_grup.draw(window)
 
+        take_text = medium_font.render("take roshens " + str(), True, (255,25,55))
+        window.blit(health_text,(WIDTH-100,0))
+
+        health_text = medium_font.render("lives " + str(player.health), True, (255,25,55))
+        window.blit(health_text,(WIDTH-100,0))
+
+        time_text = medium_font.render("lost " + str(round(new_time - start_time,1)), True, (255,25,55))
+        window.blit(time_text,(WIDTH-200,0))      
         
+        if pygame.sprite.spritecollide(player,roshen,True):
+             +=1
+
         if pygame.sprite.spritecollide(player,walls_grup,True):
             player.health -=1
             player.update_pictures()
         if player.health <-0:
-        
+            porazka_text = big_font.render("На жаль порошенко знайшов тебе,ти був близько до істини " + str(), True, (255,25,55))
+            window.blit(porazka_text,(WIDTH-1050,HEIGHT - 325)) 
             finish = True
         for w  in pygame.sprite.groupcollide(walls_grup,bullets,False,True):
             w.health -=1
+
+        if new_time - start_time >= 20:
+            win_text = big_font.render("you won the 3rd level of the basement Poroshenko, my congratulations " + str(), True, (255,25,55))
+            window.blit(win_text,(WIDTH-1138,HEIGHT - 325)) 
+            finish = True
+
 
         # for w in walls_grup:
         #     pygame.draw.rect(window,(255,0,0),w.rect,1)
