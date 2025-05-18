@@ -7,6 +7,7 @@ HEIGHT = 650
 SIZE = (WIDTH, HEIGHT)
 FPS = 60
 
+score = 0
 cars_pics = ["car3.png","car2.png","car1.png","car0.png"]
 bullets = pygame.sprite.Group()
 window = pygame.display.set_mode(SIZE)
@@ -41,7 +42,7 @@ class Player(GameSprite):
     def __init__(self, filename, size, coords, speed):
         super().__init__(filename, size, coords, speed)
         self.health = 3
-    
+
     def update(self):
         keys = pygame.key.get_pressed() 
         if keys[pygame.K_RIGHT]and self.rect.x <= WIDTH - self.rect.width:
@@ -58,6 +59,7 @@ class Player(GameSprite):
                              )
         bullets.add(new_bullet)
         
+
 class ROSHEN(GameSprite):
     def update(self):
         self.rect.y += self.speed
@@ -160,17 +162,17 @@ while game:
         roshen_grup.update()
         roshen_grup.draw(window)
 
-        take_text = medium_font.render("take roshens " + str(), True, (255,25,55))
-        window.blit(health_text,(WIDTH-100,0))
+        take_text = medium_font.render("take roshens " + str(score), True, (255,25,55))
+        window.blit(take_text,(WIDTH-400,0))
 
         health_text = medium_font.render("lives " + str(player.health), True, (255,25,55))
         window.blit(health_text,(WIDTH-100,0))
 
-        time_text = medium_font.render("lost " + str(round(new_time - start_time,1)), True, (255,25,55))
+        time_text = medium_font.render("time " + str(round(new_time - start_time,1)), True, (255,25,55))
         window.blit(time_text,(WIDTH-200,0))      
         
-        if pygame.sprite.spritecollide(player,roshen,True):
-             +=1
+        if pygame.sprite.spritecollide(player,roshen_grup,True):
+             score += 1
 
         if pygame.sprite.spritecollide(player,walls_grup,True):
             player.health -=1
