@@ -122,7 +122,7 @@ for i in range(5):
         wall = Wall("wall.png",(random.randint(100,500),70),(random.randint(0,WIDTH-50),random.choice((0,70,210,140))),10)
     walls_grup.add(wall)
 
-for i in range(5):
+for i in range(6):
     roshen = ROSHEN("roshen.png",(120,30),(random.randint(0,WIDTH-50),random.choice((0,50,210,140))),10)
     while pygame.sprite.spritecollideany(roshen,roshen_grup):
         roshen = ROSHEN("roshen.png",(120,30),(random.randint(0,WIDTH-50),50),10)
@@ -184,7 +184,7 @@ while game:
         for w  in pygame.sprite.groupcollide(walls_grup,bullets,False,True):
             w.health -=1
 
-        if new_time - start_time >= 20:
+        if new_time - start_time >= 20 or score == 5:
             win_text = big_font.render("you won the 3rd level of the basement Poroshenko, my congratulations " + str(), True, (255,25,55))
             window.blit(win_text,(WIDTH-1138,HEIGHT - 325)) 
             finish = True
